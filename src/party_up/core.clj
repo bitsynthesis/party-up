@@ -70,10 +70,14 @@
                 :universe _universe}))
 
 
+(defn set-state [_universe address value]
+  (swap! (:state _universe) assoc address value))
+
+
 (defn device-function [device channel]
-  (let [function-address (+ (:starting-address device) channel)]
+  (let [address (+ (:starting-address device) channel)]
     (fn [value]
-      (swap! (-> device :universe :state) assoc function-address value)
+      (set-state (:universe device) address value)
       ;; TODO this should be happening automatically all the time, according to
       ;; standard dmx behavior...
       (update-universe (:universe device)))))

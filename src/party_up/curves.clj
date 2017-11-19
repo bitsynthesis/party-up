@@ -19,16 +19,22 @@
 
 
 (defn bezier [points]
+  ;; TODO we could handle single points by duplicating them as start and end
   (assert (<= 2 (count points)) "Bezier requires a minimum of two points")
 
   (fn [position]
+    ;; TODO is rounding with int the best move?
     (int (de-casteljau-algorithm position points))))
 
 
-(defn view-curve [curve]
-  (-> (charts/function-plot curve 0.0 1.0 :x-label "time" :y-label "value")
-      (charts/set-theme :dark)
-      incanter/view))
+(defn view-curves [curves]
+  (let [plot (charts/function-plot
+              (first curves) 0.0 1.0 :x-label "time" :y-label "value")]
+    (-> (if (pos? (count (rest curves)))
+          (reduce #(charts/add-function %1 %2 0.0 1.0) plot (rest curves))
+          plot)
+     (charts/set-theme :dark)
+     incanter/view)))
 
 
 (defn invert [curve-fn]
