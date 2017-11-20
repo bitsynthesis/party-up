@@ -48,10 +48,24 @@
 
 
 (defn combine [& curve-fns]
-  (fn [position]
-    (let [fn-index (get-combined-fn-index position (count curve-fns))
-          curve-fn (nth curve-fns fn-index)
-          position-per (/ 1 (count curve-fns))
-          curve-position (/ (- position (* fn-index position-per))
-                            position-per) ]
-      (curve-fn curve-position))))
+  ;; allows both single and nested fn's
+  (let [curve-fns (flatten curve-fns)]
+    (fn [position]
+      (let [fn-index (get-combined-fn-index position (count curve-fns))
+            curve-fn (nth curve-fns fn-index)
+            position-per (/ 1 (count curve-fns))
+            curve-position (/ (- position (* fn-index position-per))
+                              position-per) ]
+        (curve-fn curve-position)))))
+
+
+;; (def my-curve (bezier [0 50]))
+;; (def my-curve2 (bezier [50 70 90 255]))
+;; (def my-curve3 (bezier [255 60 30 15 7 3 2 0]))
+
+;; (view-curves [my-curve my-curve2])
+;; (view-curves [(invert my-curve2)])
+;; (view-curves [(combine (combine my-curve my-curve2 my-curve3)
+;;                        (invert (combine my-curve my-curve2 my-curve3)))])
+;;
+;; (view-curves [my-curve my-curve2 my-curve3])
