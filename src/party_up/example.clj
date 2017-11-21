@@ -183,16 +183,16 @@
 ;;
 ;;
 
-;; (def my-curve (curves/bezier [0 25]))
-;; (def my-curve2 (curves/bezier [25 35 45 255]))
-;; (def my-curve3 (curves/bezier [255 30 15 7 4 2 1 0]))
+(def my-curve (curves/bezier [0 25]))
+(def my-curve2 (curves/bezier [25 35 45 255]))
+(def my-curve3 (curves/bezier [255 30 15 7 4 2 1 0]))
 
-;; (def super-curve
-;;   (let [half-curve (curves/combine my-curve my-curve2 my-curve3)]
-;;     (curves/combine half-curve (curves/invert half-curve))))
+(def super-curve
+  (let [half-curve (curves/combine my-curve my-curve2 my-curve3)]
+    (curves/combine half-curve (curves/invert half-curve))))
 
-;; (def green-curve (curves/bezier [0 10 20 30 512 0]))
-;; (def blue-curve (curves/bezier [0 0 0 0 255 0]))
+(def green-curve (curves/bezier [0 10 20 30 512 0]))
+(def blue-curve (curves/bezier [0 0 0 0 255 0]))
 
 ;;
 ;; (curves/view-curves [green-curve (curves/invert green-curve) super-curve])

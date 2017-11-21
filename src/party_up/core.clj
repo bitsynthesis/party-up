@@ -40,38 +40,22 @@
 
 
 (defn universe [port-path]
-  (let [state (atom (into [] (replicate 512 0)))]
-    (map->Universe {:port (atom nil)
-                    :port-path port-path
-                    :queue (atom (async/chan))
-                    :state state})))
-
-
-(defn queue-update [_universe address value]
-  (async/put! @(:queue _universe) [address value]))
+  (map->Universe {:port (atom nil)
+                  :port-path port-path
+                  :state (atom (into [] (replicate 512 0)))
+                  :status (atom :stopped)}))
 
 
 (defn set-state! [_universe address-values]
   (swap! (:state _universe) #(apply assoc % (flatten address-values))))
 
 
-;; TODO rate limiting https://en.wikipedia.org/wiki/DMX512#Timing
-;; and minimum rate for that matter... should probably not park
-;; which may simplify things anyway
+;; rate info https://en.wikipedia.org/wiki/DMX512#Timing
 (defn start-update-loop [_universe]
+  (reset! (:status _universe) :started)
   (async/go-loop []
-    ;; park awaiting items on queue
-    (let [queue @(:queue _universe)
-          queue-dump (async/into [(async/<! queue)] queue)]
-
-      ;; create a new queue for the universe and close the old
-      (reset! (:queue _universe) (async/chan))
-      (async/close! queue)
-
-      ;; consume the old queue dump
-      (let [min-break-ms 92
-            address-values (async/<! queue-dump)]
-        (set-state! _universe address-values)
+    (when (= :started @(:status _universe))
+      (let [min-break-ms 92]
         (write-universe _universe)
         (async/<! (async/timeout min-break-ms))
         (recur)))))
@@ -86,8 +70,8 @@
 
 (defn stop-universe [_universe]
   (let [port (:port _universe)]
-    (when @port (close-port @port) (reset! port nil))
-    (async/close! @(:queue _universe))))
+    (reset! (:status _universe) :stopped)
+    (when @port (close-port @port) (reset! port nil))))
 
 
 (defn blackout-universe [_universe]
