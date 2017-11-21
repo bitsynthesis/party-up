@@ -20,20 +20,13 @@
   (byte (if (< i 128) i (- i 256))))
 
 
-;; TODO use writeIntArray instead, then no byte fuckery, maybe
-;; https://github.com/scream3r/java-simple-serial-connector
-;; /blob/2.8.0/src/java/jssc/SerialPort.java
-(defn ^:private write-bytes [port b-array]
-  (.writeBytes port b-array))
-
-
 (defn write-universe [_universe]
-  (let [header [126 6 1 2 0]
-        footer [231]]
-    (->> (concat header @(:state _universe) footer)
-         (map int-to-signed-byte)
-         byte-array
-         (write-bytes @(:port _universe)))))
+  (let [port @(:port _universe)
+        state @(:state _universe)
+        header [126 6 1 2 0]
+        footer [231]
+        msg (concat header state footer)]
+    (.writeIntArray port (int-array msg))))
 
 
 (defrecord Universe [port port-path queue state])

@@ -2,7 +2,7 @@
   (:require [party-up.core :as core]))
 
 
-(defrecord Device [starting-address universe])
+(defrecord Device [address universe])
 
 
 (defprotocol Brightness
@@ -31,26 +31,21 @@
 
 (defmacro defdevice
   "Define a record with the given extensions. The device record requires the
-   attributes :universe, a universe record, and :starting-address, the DMX
+   attributes :universe, a universe record, and :address, the DMX
    address mapped to the first channel of the device."
   [_name & extensions]
-  (let [values ['universe 'starting-address]]
+  (let [values ['universe 'address]]
     `(do
        (defrecord ~_name ~(vec values))
        (extend ~_name ~@extensions))))
-
-
-(defn channel-handler [device channel]
-  (let [address (+ (:starting-address device) channel)]
-    #(core/set-state! (:universe device) [address %])))
 
 
 (defn channel
   ([number] (channel number identity))
   ([number modifier]
    (fn [device value]
-     (let [handler (channel-handler device number)]
-       (handler (modifier value))))))
+     (let [address (+ number (:address device))]
+       (core/set-state! (:universe device) [address (modifier value)])))))
 
 
-(defn feature-missing [& _])
+(defn disabled [& _])
