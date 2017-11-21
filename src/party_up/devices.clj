@@ -42,7 +42,7 @@
 
 (defn channel-handler [device channel]
   (let [address (+ (:starting-address device) channel)]
-    (partial core/set-state (:universe device) address)))
+    (partial core/queue-update (:universe device) address)))
 
 
 (defn channel

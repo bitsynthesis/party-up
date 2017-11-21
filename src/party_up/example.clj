@@ -8,7 +8,7 @@
             [party-up.devices.min-wash :refer [->MinWash]]))
 
 
-(def my-universe (pu/universe "/dev/ttyUSB0"))
+(def my-universe (pu/universe "/dev/ttyUSB1"))
 
 
 (pu/start-universe my-universe)
@@ -28,14 +28,14 @@
 ;; (strobe my-min-wash 255)
 ;; (strobe my-min-wash 254)
 
-(pu/set-state my-universe 0 255)
-(async/go (async/>! @(:channel my-universe) [0 255]))
-(async/go (async/>! @(:channel my-universe) [0 127]))
+;; (pu/set-state my-universe 0 255)
+;; (async/go (async/>! @(:channel my-universe) [0 255]))
+;; (async/go (async/>! @(:channel my-universe) [0 127]))
 
 
-(:port my-universe)
-(.closePort @(:port my-universe))
-(.status @(:port my-universe))
+;; (:port my-universe)
+;; (.closePort @(:port my-universe))
+;; (.status @(:port my-universe))
 
 
 (pan my-min-wash 0)
