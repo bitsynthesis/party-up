@@ -1,5 +1,5 @@
 (ns party-up.devices
-  (:require [party-up.core :as core]))
+  (:require [party-up.universe :as uni]))
 
 
 (defrecord Device [address universe])
@@ -45,7 +45,7 @@
   ([number modifier]
    (fn [device value]
      (let [address (+ number (:address device))]
-       (core/set-state! (:universe device) [address (modifier value)])))))
+       (uni/set-state (:universe device) [address (modifier value)])))))
 
 
 (defn disabled [& _])
