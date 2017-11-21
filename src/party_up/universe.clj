@@ -2,14 +2,23 @@
   (:require [clojure.core.async :as async]))
 
 
+;; TODO universe should be plural or devices should be singular
+;; there should also be a reflective structure for universe
+;; devices as fixtures. perhaps "fixture" is a better term than
+;; device. perhaps "interface" for dmxking.
+
+
 (defn ^:private close-port [_universe]
   (let [port (:port _universe)]
-    (when (and (not (nil? @port))
-               (.portOpened @port))
-      (.closePort @port))
+    ;; TODO this is broken
+    ;; (when (and (not (nil? @port))
+    ;;            (.portOpened @port))
+    ;;   (.closePort @port))
+    (try (.closePort @port) (catch Exception e))
     _universe))
 
 
+;; TODO extract dmxking specific settings
 (defn ^:private open-port [_universe]
   (let [baud-rate 57600
         data-bits 8
@@ -23,6 +32,7 @@
     _universe))
 
 
+;; TODO extract dmxking specific settings
 (defn write [_universe]
   (let [port @(:port _universe)
         state @(:state _universe)
@@ -71,7 +81,7 @@
 
 
 (defn blackout [_universe]
-  (set-state! _universe (map vector (range 512) (replicate 512 0))))
+  (set-state _universe (map vector (range 512) (replicate 512 0))))
 
 
 (defrecord ^:private Universe [port port-path queue state])

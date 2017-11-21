@@ -40,12 +40,17 @@
        (extend ~_name ~@extensions))))
 
 
+(defn channel-handler [device number]
+  (let [address (+ number (:address device))]
+    (fn [value]
+      (uni/set-state (:universe device) [address value]))))
+
+
 (defn channel
   ([number] (channel number identity))
   ([number modifier]
    (fn [device value]
-     (let [address (+ number (:address device))]
-       (uni/set-state (:universe device) [address (modifier value)])))))
+     ((channel-handler device number) (modifier value)))))
 
 
 (defn disabled [& _])
