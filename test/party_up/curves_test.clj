@@ -8,171 +8,221 @@
 ;; pct is greater than the point before
 
 
+(defn test-curve-fn [curve-fn position-values]
+  (doseq [[position value] (partition 2 position-values)]
+    (is (= value (curve-fn position)))))
+
+
 (deftest bezier-two-points
-  (let [curve-fn (curves/bezier [100 200])]
-    (is (= 100 (curve-fn 0)))
-    (is (= 110 (curve-fn 0.1)))
-    (is (= 190 (curve-fn 0.9)))
-    (is (= 200 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/bezier [100 200])
+   [0.0 100
+    0.1 110
+    0.9 190
+    1.0 200]))
 
 
 (deftest bezier-multiple-linear-points
-  (let [curve-fn (curves/bezier [100 200 300])]
-    (is (= 100 (curve-fn 0)))
-    (is (= 120 (curve-fn 0.1)))
-    (is (= 280 (curve-fn 0.9)))
-    (is (= 300 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/bezier [100 200 300])
+   [0.0 100
+    0.1 120
+    0.9 280
+    1.0 300]))
 
 
 (deftest bezier-multiple-nonlinear-points
-  (let [curve-fn (curves/bezier [100 200 400 0])]
-    (is (= 100 (curve-fn 0)))
-    (is (= 182 (curve-fn 0.25)))
-    (is (= 206 (curve-fn 0.33)))
-    (is (= 237 (curve-fn 0.5)))
-    (is (= 227 (curve-fn 0.66)))
-    (is (= 198 (curve-fn 0.75)))
-    (is (= 0 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/bezier [100 200 400 0])
+   [0.00 100
+    0.25 182
+    0.33 206
+    0.50 237
+    0.66 227
+    0.75 198
+    1.00 0]))
 
 
 (deftest flip-curve
-  (let [curve-fn (curves/flip (curves/bezier [100 200 400 0]))]
-    (is (= 0 (curve-fn 0)))
-    (is (= 198 (curve-fn 0.25)))
-    (is (= 225 (curve-fn 0.33)))
-    (is (= 237 (curve-fn 0.5)))
-    (is (= 209 (curve-fn 0.66)))
-    (is (= 182 (curve-fn 0.75)))
-    (is (= 100 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/flip (curves/bezier [100 200 400 0]))
+   [0.00 0
+    0.25 198
+    0.33 225
+    0.50 237
+    0.66 209
+    0.75 182
+    1.00 100]))
 
 
 (deftest flip-two-curves
   (let [[curve-fn1 curve-fn2] (curves/flip [(curves/bezier [100 200 400 0])
                                             (curves/bezier [0 100])])]
-    (is (= 0 (curve-fn1 0)))
-    (is (= 182 (curve-fn1 0.75)))
-    (is (= 100 (curve-fn1 1)))
-    (is (= 100 (curve-fn2 0)))
-    (is (= 25 (curve-fn2 0.75)))
-    (is (= 0 (curve-fn2 1)))))
+    (test-curve-fn
+     curve-fn1
+     [0.00 0
+      0.75 182
+      1.00 100])
+    (test-curve-fn
+     curve-fn2
+     [0.00 100
+      0.75 25
+      1.00 0])))
 
 
 (deftest invert-curve
-  (let [curve-fn (curves/invert (curves/bezier [100 200 400 0]))]
-    (is (= 155 (curve-fn 0)))
-    (is (= 73 (curve-fn 0.25)))
-    (is (= 49 (curve-fn 0.33)))
-    (is (= 18 (curve-fn 0.5)))
-    (is (= 28 (curve-fn 0.66)))
-    (is (= 57 (curve-fn 0.75)))
-    (is (= 255 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/invert (curves/bezier [100 200 400 0]))
+   [0.00 155
+    0.25 73
+    0.33 49
+    0.50 18
+    0.66 28
+    0.75 57
+    1.00 255]))
 
 
 (deftest invert-curve-with-thousand-max
-  (let [curve-fn (curves/invert 1000 (curves/bezier [100 200 400 0]))]
-    (is (= 900 (curve-fn 0)))
-    (is (= 818 (curve-fn 0.25)))
-    (is (= 794 (curve-fn 0.33)))
-    (is (= 763 (curve-fn 0.5)))
-    (is (= 773 (curve-fn 0.66)))
-    (is (= 802 (curve-fn 0.75)))
-    (is (= 1000 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/invert 1000 (curves/bezier [100 200 400 0]))
+   [0.00 900
+    0.25 818
+    0.33 794
+    0.50 763
+    0.66 773
+    0.75 802
+    1.00 1000]))
 
 
 (deftest invert-two-curves
   (let [[curve-fn1 curve-fn2] (curves/invert [(curves/bezier [100 200 400 0])
                                               (curves/bezier [0 100])])]
-    (is (= 155 (curve-fn1 0)))
-    (is (= 57 (curve-fn1 0.75)))
-    (is (= 255 (curve-fn1 1)))
-    (is (= 255 (curve-fn2 0)))
-    (is (= 180 (curve-fn2 0.75)))
-    (is (= 155 (curve-fn2 1)))))
+    (test-curve-fn
+     curve-fn1
+     [0.00 155
+      0.75 57
+      1.00 255])
+    (test-curve-fn
+     curve-fn2
+     [0.00 255
+      0.75 180
+      1.00 155])))
 
 
 (deftest combine-curves
-  (let [curve-fn (curves/combine (curves/bezier [100 200])
-                                 (curves/bezier [200 300 500 100]))]
-    (is (= 100 (curve-fn 0)))
-    (is (= 150 (curve-fn 0.25)))
-    (is (= 200 (curve-fn 0.5)))
-    (is (= 100 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/combine (curves/bezier [100 200])
+                   (curves/bezier [200 300 500 100]))
+   [0.00 100
+    0.25 150
+    0.50 200
+    1.00 100]))
 
 
 (deftest combine-collection-of-curves
-  (let [curve-fn (curves/combine [(curves/bezier [100 200])
-                                  (curves/bezier [200 300 500 100])])]
-    (is (= 100 (curve-fn 0)))
-    (is (= 150 (curve-fn 0.25)))
-    (is (= 200 (curve-fn 0.5)))
-    (is (= 100 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/combine [(curves/bezier [100 200])
+                    (curves/bezier [200 300 500 100])])
+   [0.00 100
+    0.25 150
+    0.50 200
+    1.00 100]))
 
 
 (deftest combine-single-curves-and-collections
-  (let [curve-fn (curves/combine (curves/bezier [100 200])
-                                 [(curves/bezier [200 300 500 100])])]
-    (is (= 100 (curve-fn 0)))
-    (is (= 150 (curve-fn 0.25)))
-    (is (= 200 (curve-fn 0.5)))
-    (is (= 100 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/combine (curves/bezier [100 200])
+                   [(curves/bezier [200 300 500 100])])
+   [0.00 100
+    0.25 150
+    0.50 200
+    1.00 100]))
 
 
 (deftest duplicate-curve
-  (let [curve-fn (curves/duplicate (curves/bezier [0 100]))]
-    (is (= 0 (curve-fn 0)))
-    (is (= 50 (curve-fn 0.25)))
-    (is (= 99 (curve-fn 0.49999)))
-    (is (= 0 (curve-fn 0.5)))
-    (is (= 50 (curve-fn 0.75)))
-    (is (= 100 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/duplicate (curves/bezier [0 100]))
+   [0.00000 0
+    0.25000 50
+    0.49999 99
+    0.50000 0
+    0.75000 50
+    1.00000 100]))
 
 
 (deftest duplicate-curve-four-times
-  (let [curve-fn (curves/duplicate 4 (curves/bezier [0 100]))]
-    (is (= 0 (curve-fn 0)))
-    (is (= 99 (curve-fn 0.24999)))
-    (is (= 0 (curve-fn 0.25)))
-    (is (= 99 (curve-fn 0.49999)))
-    (is (= 0 (curve-fn 0.5)))
-    (is (= 99 (curve-fn 0.74999)))
-    (is (= 0 (curve-fn 0.75)))
-    (is (= 100 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/duplicate 4 (curves/bezier [0 100]))
+   [0.00000 0
+    0.24999 99
+    0.25000 0
+    0.49999 99
+    0.50000 0
+    0.74999 99
+    0.75000 0
+    1.00000 100]))
+
+
+(deftest duplicate-two-curves
+  (let [[curve-fn1 curve-fn2] (curves/duplicate [(curves/bezier [0 100])
+                                                 (curves/bezier [100 0])])]
+    (test-curve-fn
+     curve-fn1
+     [0.00000 0
+      0.25000 50
+      0.49999 99
+      0.50000 0
+      0.75000 50
+      1.00000 100])
+    (test-curve-fn
+     curve-fn2
+     [0.00000 100
+      0.25000 50
+      0.49999 0
+      0.50000 100
+      0.75000 50
+      1.00000 0])))
 
 
 (deftest append-flip-to-curve
-  (let [curve-fn (curves/append curves/flip (curves/bezier [0 100]))]
-    (is (= 0 (curve-fn 0)))
-    (is (= 50 (curve-fn 0.25)))
-    (is (= 100 (curve-fn 0.5)))
-    (is (= 50 (curve-fn 0.75)))
-    (is (= 0 (curve-fn 1)))))
+  (test-curve-fn
+   (curves/append curves/flip (curves/bezier [0 100]))
+   [0.00 0
+    0.25 50
+    0.50 100
+    0.75 50
+    1.00 0]))
 
 
 (deftest append-flip-to-two-curves
-  (let [[curve-fn1 curve-fn2] (curves/append
-                               curves/flip
+  (let [[curve-fn1 curve-fn2] (curves/append curves/flip
                                [(curves/bezier [0 100])
                                 (curves/bezier [100 200 400 0])])]
-    (is (= 0 (curve-fn1 0)))
-    (is (= 50 (curve-fn1 0.25)))
-    (is (= 100 (curve-fn1 0.5)))
-    (is (= 50 (curve-fn1 0.75)))
-    (is (= 0 (curve-fn1 1)))
-    (is (= 100 (curve-fn2 0)))
-    (is (= 237 (curve-fn2 0.25)))
-    (is (= 0 (curve-fn2 0.5)))
-    (is (= 237 (curve-fn2 0.75)))
-    (is (= 100 (curve-fn2 1)))))
+    (test-curve-fn
+     curve-fn1
+     [0.00 0
+      0.25 50
+      0.50 100
+      0.75 50
+      1.00 0])
+    (test-curve-fn
+     curve-fn2
+     [0.00 100
+      0.25 237
+      0.50 0
+      0.75 237
+      1.00 100])))
 
 
 (deftest draw-linear-polygon
-  (let [shape-fn (curves/poly [0 100 50 50 0])]
-    (is (= 0 (shape-fn 0)))
-    (is (= 50 (shape-fn 0.125)))
-    (is (= 100 (shape-fn 0.25)))
-    (is (= 75 (shape-fn 0.375)))
-    (is (= 50 (shape-fn 0.5)))
-    (is (= 50 (shape-fn 0.625)))
-    (is (= 50 (shape-fn 0.75)))
-    (is (= 25 (shape-fn 0.875)))
-    (is (= 0 (shape-fn 1)))))
+  (test-curve-fn
+   (curves/poly [0 100 50 50 0])
+   [0.000 0
+    0.125 50
+    0.250 100
+    0.375 75
+    0.500 50
+    0.625 50
+    0.750 50
+    0.875 25
+    1.000 0]))

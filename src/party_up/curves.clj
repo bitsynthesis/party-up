@@ -72,9 +72,11 @@
 
 
 (defn duplicate
-  ([curve-fn] (duplicate 2 curve-fn))
-  ([number curve-fn]
-   (apply combine (replicate number curve-fn))))
+  ([curve-fns] (duplicate 2 curve-fns))
+  ([number curve-fns]
+   (if (coll? curve-fns)
+     (map (partial duplicate number) curve-fns)
+     (combine (replicate number curve-fns)))))
 
 
 (defn append [modifier-fn curve-fns]
