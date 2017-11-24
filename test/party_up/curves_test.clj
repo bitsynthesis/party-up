@@ -152,3 +152,16 @@
     (is (= 0 (curve-fn2 0.5)))
     (is (= 237 (curve-fn2 0.75)))
     (is (= 100 (curve-fn2 1)))))
+
+
+(deftest draw-linear-shape
+  (let [shape-fn (curves/poly [0 100 50 50 0])]
+    (is (= 0 (shape-fn 0)))
+    (is (= 50 (shape-fn 0.125)))
+    (is (= 100 (shape-fn 0.25)))
+    (is (= 75 (shape-fn 0.375)))
+    (is (= 50 (shape-fn 0.5)))
+    (is (= 50 (shape-fn 0.625)))
+    (is (= 50 (shape-fn 0.75)))
+    (is (= 25 (shape-fn 0.875)))
+    (is (= 0 (shape-fn 1)))))

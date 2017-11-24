@@ -28,13 +28,14 @@
 
 
 (defn view [curves]
-  (let [plot (charts/function-plot
-              (first curves) 0.0 1.0 :x-label "time" :y-label "value")]
-    (-> (if (pos? (count (rest curves)))
-          (reduce #(charts/add-function %1 %2 0.0 1.0) plot (rest curves))
-          plot)
-     (charts/set-theme :dark)
-     incanter/view)))
+  (let [curves (if (coll? curves) curves [curves])]
+    (let [plot (charts/function-plot
+                (first curves) 0.0 1.0 :x-label "time" :y-label "value")]
+      (-> (if (pos? (count (rest curves)))
+            (reduce #(charts/add-function %1 %2 0.0 1.0) plot (rest curves))
+            plot)
+          (charts/set-theme :dark)
+          incanter/view))))
 
 
 (defn flip [curve-fns]
@@ -51,16 +52,16 @@
       (- 255 (curve-fns position)))))
 
 
-(defn ^:private get-combined-fn-index [position num-fns]
-  (min (int (* position num-fns))
-       (dec num-fns)))
+(defn ^:private get-relative-index [position num-items]
+  (min (int (* position num-items))
+       (dec num-items)))
 
 
 (defn combine [& curve-fns]
   ;; allows both single and nested fn's
   (let [curve-fns (flatten curve-fns)]
     (fn [position]
-      (let [fn-index (get-combined-fn-index position (count curve-fns))
+      (let [fn-index (get-relative-index position (count curve-fns))
             curve-fn (nth curve-fns fn-index)
             position-per (/ 1 (count curve-fns))
             curve-position (/ (- position (* fn-index position-per))
@@ -78,3 +79,7 @@
   (if (coll? curve-fns)
     (map (partial append modifier-fn) curve-fns)
     (combine curve-fns (modifier-fn curve-fns))))
+
+
+(defn poly [points]
+  (combine (map bezier (partition 2 1 points))))
