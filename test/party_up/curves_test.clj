@@ -3,6 +3,7 @@
             [party-up.curves :as curves]))
 
 
+;; TODO
 ;; allow for simple evenly spaced control points
 ;; or finer grain control as a pct of total time with requirement that each
 ;; pct is greater than the point before
@@ -164,54 +165,49 @@
 
 
 (deftest duplicate-two-curves
-  (let [[curve-fn1 curve-fn2] (curves/duplicate [(curves/bezier [0 100])
-                                                 (curves/bezier [100 0])])]
+  (let [[curve-fn1 curve-fn2] (curves/duplicate [identity inc])]
     (test-curve-fn
      curve-fn1
-     [0.00000 0
-      0.25000 50
-      0.49999 99
-      0.50000 0
-      0.75000 50
-      1.00000 100])
+     [0.00 0.0
+      0.25 0.5
+      0.50 0.0
+      0.75 0.5
+      1.00 1.0])
     (test-curve-fn
      curve-fn2
-     [0.00000 100
-      0.25000 50
-      0.49999 0
-      0.50000 100
-      0.75000 50
-      1.00000 0])))
+     [0.00 1.0
+      0.25 1.5
+      0.50 1.0
+      0.75 1.5
+      1.00 2.0])))
 
 
 (deftest append-flip-to-curve
   (test-curve-fn
-   (curves/append curves/flip (curves/bezier [0 100]))
-   [0.00 0
-    0.25 50
-    0.50 100
-    0.75 50
-    1.00 0]))
+   (curves/append curves/flip identity)
+   [0.00 0.0
+    0.25 0.5
+    0.50 1.0
+    0.75 0.5
+    1.00 0.0]))
 
 
 (deftest append-flip-to-two-curves
-  (let [[curve-fn1 curve-fn2] (curves/append curves/flip
-                               [(curves/bezier [0 100])
-                                (curves/bezier [100 200 400 0])])]
+  (let [[curve-fn1 curve-fn2] (curves/append curves/flip [identity inc])]
     (test-curve-fn
      curve-fn1
-     [0.00 0
-      0.25 50
-      0.50 100
-      0.75 50
-      1.00 0])
+     [0.00 0.0
+      0.25 0.5
+      0.50 1.0
+      0.75 0.5
+      1.00 0.0])
     (test-curve-fn
      curve-fn2
-     [0.00 100
-      0.25 237
-      0.50 0
-      0.75 237
-      1.00 100])))
+     [0.00 1.0
+      0.25 1.5
+      0.50 2.0
+      0.75 1.5
+      1.00 1.0])))
 
 
 (deftest draw-linear-polygon
@@ -226,3 +222,69 @@
     0.750 50
     0.875 25
     1.000 0]))
+
+
+(deftest point
+  (test-curve-fn
+   (curves/point 123)
+   [0.0 123
+    0.1 123
+    0.5 123
+    0.9 123
+    1.0 123]))
+
+
+(deftest bpm-to-ms
+  (is (= 600 (curves/bpm 100)))
+  (is (= 500 (curves/bpm 120)))
+  (is (= 2400 (curves/bpm 100 4)))
+  (is (= 2000 (curves/bpm 120 4))))
+
+
+(deftest slice-half
+  (test-curve-fn
+   (curves/slice 0.5 identity)
+   [0.0 0.0
+    0.5 0.25
+    1.0 0.5]))
+
+
+(deftest slice-end
+  (test-curve-fn
+   (curves/slice 0.9 1 identity)
+   [0.0 0.9
+    0.5 0.95
+    1.0 1.0]))
+
+
+(deftest slice-and-flip
+  (test-curve-fn
+   (curves/slice 1 0.9 identity)
+   [0.0 1.0
+    0.5 0.95
+    1.0 0.9]))
+
+
+(deftest beats
+  (let [[curve-fn1 curve-fn2 curve-fn3 curve-fn4]
+        (curves/beats 4 identity)]
+    (test-curve-fn
+     curve-fn1
+     [0.0 0.0
+      0.5 0.125
+      1.0 0.25])
+    (test-curve-fn
+     curve-fn2
+     [0.0 0.25
+      0.5 0.375
+      1.0 0.5])
+    (test-curve-fn
+     curve-fn3
+     [0.0 0.5
+      0.5 0.625
+      1.0 0.75])
+    (test-curve-fn
+     curve-fn4
+     [0.0 0.75
+      0.5 0.875
+      1.0 1.0])))

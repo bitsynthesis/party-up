@@ -87,3 +87,29 @@
 
 (defn poly [points]
   (combine (map bezier (partition 2 1 points))))
+
+
+(defn point [value]
+  (poly [value value]))
+
+
+(defn bpm
+  ([beats-per-minute] (bpm beats-per-minute 1))
+  ([beats-per-minute beats] (->> beats-per-minute (/ 60) (* 1000) (* beats))))
+
+
+(defn slice
+  ([end curve-fn] (slice 0 end curve-fn))
+  ([start end curve-fn]
+   (let [length (- end start)]
+     (fn [position]
+       (curve-fn (-> position (* length) (+ start)))))))
+
+
+(defn beats [number curve-fn]
+  (->> number
+       inc
+       range
+       (partition 2 1)
+       (map (partial map (partial * (/ 1 number))))
+       (map (fn [[start end]] (slice start end curve-fn)))))
