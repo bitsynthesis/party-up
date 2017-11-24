@@ -45,11 +45,13 @@
       (curve-fns (- 1 position)))))
 
 
-(defn invert [curve-fns]
-  (if (coll? curve-fns)
-    (map invert curve-fns)
-    (fn [position]
-      (- 255 (curve-fns position)))))
+(defn invert
+  ([curve-fns] (invert 255 curve-fns))
+  ([max-value curve-fns]
+   (if (coll? curve-fns)
+     (map invert curve-fns)
+     (fn [position]
+       (- max-value (curve-fns position))))))
 
 
 (defn ^:private get-relative-index [position num-items]

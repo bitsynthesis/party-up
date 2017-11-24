@@ -68,6 +68,17 @@
     (is (= 255 (curve-fn 1)))))
 
 
+(deftest invert-curve-with-thousand-max
+  (let [curve-fn (curves/invert 1000 (curves/bezier [100 200 400 0]))]
+    (is (= 900 (curve-fn 0)))
+    (is (= 818 (curve-fn 0.25)))
+    (is (= 794 (curve-fn 0.33)))
+    (is (= 763 (curve-fn 0.5)))
+    (is (= 773 (curve-fn 0.66)))
+    (is (= 802 (curve-fn 0.75)))
+    (is (= 1000 (curve-fn 1)))))
+
+
 (deftest invert-two-curves
   (let [[curve-fn1 curve-fn2] (curves/invert [(curves/bezier [100 200 400 0])
                                               (curves/bezier [0 100])])]
@@ -154,7 +165,7 @@
     (is (= 100 (curve-fn2 1)))))
 
 
-(deftest draw-linear-shape
+(deftest draw-linear-polygon
   (let [shape-fn (curves/poly [0 100 50 50 0])]
     (is (= 0 (shape-fn 0)))
     (is (= 50 (shape-fn 0.125)))
