@@ -27,7 +27,7 @@
     (int (de-casteljau-algorithm position points))))
 
 
-(defn view-curves [curves]
+(defn view [curves]
   (let [plot (charts/function-plot
               (first curves) 0.0 1.0 :x-label "time" :y-label "value")]
     (-> (if (pos? (count (rest curves)))
@@ -37,12 +37,21 @@
      incanter/view)))
 
 
-(defn invert [curve-fn]
-  (fn [position]
-    (curve-fn (- 1 position))))
+(defn flip [curve-fns]
+  (if (coll? curve-fns)
+    (map flip curve-fns)
+    (fn [position]
+      (curve-fns (- 1 position)))))
 
 
-(defn- get-combined-fn-index [position num-fns]
+(defn invert [curve-fns]
+  (if (coll? curve-fns)
+    (map invert curve-fns)
+    (fn [position]
+      (- 255 (curve-fns position)))))
+
+
+(defn ^:private get-combined-fn-index [position num-fns]
   (min (int (* position num-fns))
        (dec num-fns)))
 
@@ -59,13 +68,13 @@
         (curve-fn curve-position)))))
 
 
-;; (def my-curve (bezier [0 50]))
-;; (def my-curve2 (bezier [50 70 90 255]))
-;; (def my-curve3 (bezier [255 60 30 15 7 3 2 0]))
+(defn duplicate
+  ([curve-fn] (duplicate 2 curve-fn))
+  ([number curve-fn]
+   (apply combine (replicate number curve-fn))))
 
-;; (view-curves [my-curve my-curve2])
-;; (view-curves [(invert my-curve2)])
-;; (view-curves [(combine (combine my-curve my-curve2 my-curve3)
-;;                        (invert (combine my-curve my-curve2 my-curve3)))])
-;;
-;; (view-curves [my-curve my-curve2 my-curve3])
+
+(defn append [modifier-fn curve-fns]
+  (if (coll? curve-fns)
+    (map (partial append modifier-fn) curve-fns)
+    (combine curve-fns (modifier-fn curve-fns))))
