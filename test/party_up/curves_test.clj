@@ -288,3 +288,14 @@
      [0.0 0.75
       0.5 0.875
       1.0 1.0])))
+
+
+;; TODO this may be kinda useless
+(deftest track
+  (is (= [:a] (curves/track :a)))
+  (is (= [:a :b :c] (curves/track :a :b :c)))
+  (is (= [:a :b :c] (curves/track [:a :b :c])))
+  (is (= [:a :b :c] (curves/track :a [:b :c]))))
+
+
+

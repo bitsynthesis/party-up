@@ -106,6 +106,7 @@
        (curve-fn (-> position (* length) (+ start)))))))
 
 
+;; TODO rename or alias chunk?
 (defn beats [number curve-fn]
   (->> number
        inc
@@ -113,3 +114,10 @@
        (partition 2 1)
        (map (partial map (partial * (/ 1 number))))
        (map (fn [[start end]] (slice start end curve-fn)))))
+
+
+(defn track [& curve-fns]
+  (flatten curve-fns))
+
+
+;; TODO play
