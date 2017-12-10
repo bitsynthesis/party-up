@@ -65,7 +65,7 @@
   _universe)
 
 
-(defn restart [_universe]
+(defn start [_universe]
   (-> _universe
       (set-status :stopped)
       close-port
@@ -88,8 +88,7 @@
 
 
 (defn universe [port-path]
-  (let [_universe (map->Universe {:port (atom nil)
-                                  :port-path port-path
-                                  :state (atom (into [] (replicate 512 0)))
-                                  :status (atom :stopped)})]
-    (restart _universe)))
+  (map->Universe {:port (atom nil)
+                  :port-path port-path
+                  :state (atom (vec (replicate 512 0)))
+                  :status (atom :stopped)}))

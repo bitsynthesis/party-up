@@ -1,6 +1,6 @@
 (set-env!
   :resource-paths #{"src" "test"}
-  :dependencies '[[ola-clojure "0.1.7"]
+  :dependencies '[[org.clojure/clojure "1.8.0"]
                   [adzerk/boot-test "1.1.1" :scope "test"]
                   [boot-codox "0.10.2" :scope "test"]
                   [circleci/bond "0.3.0"]
@@ -8,7 +8,8 @@
                   [incanter "1.5.7"]
                   [org.clojure/core.async "0.3.465"]
                   [org.clojure/math.numeric-tower "0.0.4"]
-                  [org.scream3r/jssc "2.8.0"]])
+                  [org.scream3r/jssc "2.8.0"]
+                  [quil "2.6.0"]])
 
 
 (require '[adzerk.boot-test :refer [test]]
@@ -22,6 +23,7 @@
   '#{party-up.curves
      party-up.devices
      party-up.devices.min-wash
+     party-up.matrix
      party-up.universe})
 
 

@@ -9,16 +9,6 @@
 (def my-min-wash (->MinWash my-universe 0))
 
 
-;; set the initial state
-(doto my-min-wash
-      (pan 0)
-      (tilt 0)
-      (brightness 100)
-      (red 200)
-      (green 0)
-      (blue 200))
-
-
 (pan my-min-wash 0)
 (pan my-min-wash 255)
 
@@ -33,6 +23,18 @@
 (min-spot-gobo 80)
 
 
+(pan my-min-wash 255)
+
+;; set the initial state
+(doto my-min-wash
+      (pan 0)
+      (tilt 0)
+      (brightness 100)
+      (red 200)
+      (green 0)
+      (blue 200))
+
+
 (doto my-min-spot
       (pan 0)
       (tilt 127)
@@ -41,52 +43,41 @@
       (green 200)
       (blue 200))
 
+
+(defn dual-devices [min-spot-cmds min-wash-cmds]
+  (doseq [[cmd value] (partition 2 min-spot-cmds)]
+    (cmd my-min-spot value))
+  (doseq [[cmd value] (partition 2 min-wash-cmds)]
+    (cmd my-min-wash value)))
+
+
+
+
 (doseq [_ (range 1)]
-  (do
-    (doto my-min-spot
-          (pan 0)
-          (tilt 127))
-    (doto my-min-wash
-          (pan 0)
-          (tilt 127)))
+  (dual-devices [pan 0 tilt 127]
+                [pan 0 tilt 127])
 
   (Thread/sleep 4000)
 
-  (do
-    (doto my-min-spot
-          (pan 0)
-          (tilt 15))
-    (doto my-min-wash
-          (pan 0)
-          (tilt 0)))
+  (dual-devices [pan 0 tilt 15]
+                [pan 0 tilt 0])
 
   (Thread/sleep 4000)
 
-  (do
-    (doto my-min-spot
-          (pan 40)
-          (tilt 15))
-    (doto my-min-wash
-          (pan 0)
-          (tilt 127)))
+  (dual-devices [pan 40 tilt 15]
+                [pan 0 tilt 127])
 
   (Thread/sleep 4000)
 
-  (do
-    (doto my-min-spot
-          (pan 0)
-          (tilt 127))
-    (doto my-min-wash
-          (pan 190)
-          (tilt 0)))
+  (dual-devices [pan 0 tilt 127]
+                [pan 190 tilt 0])
 
   (Thread/sleep 4000)
 
-  (do
-    (strobe my-min-wash 200)
-    (doto my-min-spot
-          (pan 40)
-          (tilt 15)))
+  (strobe my-min-wash 200)
+  (doto my-min-spot
+        (pan 40)
+        (tilt 15))
 
   (Thread/sleep 4000)
 
@@ -94,21 +85,18 @@
 
   (Thread/sleep 4000)
 
-  (do
-    (doto my-min-spot
-          (pan 0)
-          (tilt 15))
-    (doto my-min-wash
-          (pan 0)
-          (tilt 0)))
+  (dual-devices [pan 0 tilt 15]
+                [pan 0 tilt 0])
 
   (Thread/sleep 4000)
 
   (Thread/sleep 4000)
 
-  (do
-    (strobe my-min-spot 1)
-    (strobe my-min-wash 1))
+  (strobe my-min-spot 1)
+  (strobe my-min-wash 1)
+
+  (dual-devices [brightness 100]
+                [brightness 100])
 
   (println "DONE")
 )
