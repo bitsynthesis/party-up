@@ -25,6 +25,12 @@
   (pan-tilt-speed [device speed]))
 
 
+;; TODO
+(defprotocol Panel
+  (get-matrix [device])
+  (set-matrix [device matrix]))
+
+
 (defprotocol Strobe
   (strobe [device speed]))
 

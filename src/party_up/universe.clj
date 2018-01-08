@@ -49,13 +49,14 @@
   _universe)
 
 
+;; TODO this rate limiting may not be necessary
 ;; rate info https://en.wikipedia.org/wiki/DMX512#Timing
 (defn ^:private start-update-loop [_universe]
   (async/go-loop []
     (when (= :started @(:status _universe))
       (let [min-break-ms 92]
         (write _universe)
-        (async/<! (async/timeout min-break-ms))
+        ;; (async/<! (async/timeout min-break-ms))
         (recur))))
   _universe)
 
@@ -84,7 +85,7 @@
   (set-state _universe (map vector (range 512) (replicate 512 0))))
 
 
-(defrecord ^:private Universe [port port-path queue state])
+(defrecord ^:private Universe [port port-path state])
 
 
 (defn universe [port-path]
