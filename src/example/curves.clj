@@ -1,5 +1,8 @@
 (ns example.curves
-  (:require [party-up.curves :refer :all]))
+  (:require [clj-time.core :as t]
+            [clj-time.coerce :as tc]
+            [clojure.core.async :as async]
+            [party-up.curves :refer :all]))
 
 
 ;; (def ramp (bezier [0 255]))
@@ -171,20 +174,63 @@
 (def test-seq (fill [(track (beats 3 ramp) (flip ramp))
                      (track (flip ramp))]))
 
-(def track-1 (nth test-seq 0))
-(def track-2 (nth test-seq 1))
 
-[((combine track-1) 0.5)
- ((combine track-2) 0.1)]
+(defn do-the-thing [x]
+  (println "Doin the thing with" x))
+
+(defn do-another-thing [y]
+  (println "Doin another thing with" y))
+
+(defn play-the-things [value1 value2]
+  (do-the-thing value1)
+  (do-another-thing value2))
+
+(defn get-values [tracks _time]
+  ((apply juxt (map combine tracks)) _time))
+
+(defn start-play-loop [duration handler]
+  (let [start-time (tc/to-long (t/now))]
+    (async/go-loop []
+          (let [current-time (tc/to-long (t/now))
+                elapsed (- current-time start-time)
+                position (min 1 (/ elapsed duration))]
+            (handler position)
+            (when (< position 1)
+              ;; this should be handled in universe anyway?
+              (async/<! (async/timeout 92))
+              (recur))))))
 
 
-(defmacro defsequence [params & tracks]
+;; untested
+(defn play [handler tracks params]
+  (let [duration (bpm (:bpm params) (count (first tracks)))
+        tracked-handler (fn [_time] (apply handler (get-values tracks _time)))]
+    (start-play-loop duration tracked-handler)))
 
-  )
+
+;; untested, loop unsupported
+(play play-the-things test-seq {:bpm 120 :loop true})
+
+
+;; (let [[track1 track2] (map combine test-seq)
+;;       _time 0.1]
+;;   [(track1 _time) (track2 _time)])
+;;
+;; (def track-1 (nth test-seq 0))
+;; (def track-2 (nth test-seq 1))
+;;
+;; [((combine track-1) 0.5)
+;;  ((combine track-2) 0.1)]
+;;
+;;
+;; (defmacro defsequence [[:keys [bpm sync-fn]] & actions]
+;;   ;; get all the track functions, merge them
+;;
+;;   )
 
 
 ;; TODO
-(defsequence test-sequence {:bpm 120 :sync fill}
+(defsequence test-sequence {:bpm 120 :sync-fn fill}
   (do-the-thing (track (beats 3 ramp) (flip ramp)))
   (do-another-thing (track (flip ramp))))
 

@@ -1,5 +1,5 @@
 (ns party-up.devices.mirror-wash
-  (:require [party-up.devices :refer [defdevice Panel]]
+  (:require [party-up.devices :refer [defdevice Color Panel] :as dvc]
             [party-up.universe :as uni]
             [quil.core :as q]
             [quil.middleware :as qm]))
@@ -84,7 +84,20 @@
            (get-value _arrangement [x y rgb])))))))
 
 
+(defn color-channel [offset]
+  (let [indices (map (partial + offset)
+                     (take-nth 3 (range 192)))]
+    (apply juxt (map dvc/channel indices))))
+
+
+;; TODO
 (defdevice MirrorWash
+  Color
+  {:color dvc/disabled
+   :color-speed dvc/disabled
+   :red (color-channel 0)
+   :green (color-channel 1)
+   :blue (color-channel 2)}
   Panel
   {:get-matrix (fn [_])
    :set-matrix (fn [_ _])})

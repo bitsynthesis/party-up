@@ -1,5 +1,8 @@
 (ns party-up.curves
-  (:require [incanter.core :as incanter]
+  (:require [clj-time.core :as t]
+            [clj-time.coerce :as tc]
+            [clojure.core.async :as async]
+            [incanter.core :as incanter]
             [incanter.stats :as stats]
             [incanter.charts :as charts]
             [incanter.io :as io]))
@@ -120,4 +123,69 @@
   (flatten curve-fns))
 
 
+;; TODO syncing fns
+
+
+(defn stretch
+  ([tracks] (stretch (apply max (map count tracks)) tracks))
+  ;; TODO need to flatten and handle single tracks
+  ([length tracks]
+   (->> tracks
+        (map combine)
+        (map (partial beats length)))))
+
+
+(defn truncate [tracks]
+  (let [length (apply min (map count tracks))]
+    (map (partial take length) tracks)))
+
+
+(defn greatest-common-denominator
+  [a b]
+  (if (zero? b) a (recur b, (mod a b))))
+
+
+(defn least-common-multiple
+  [a b]
+  (/ (* a b) (greatest-common-denominator a b)))
+
+
+(defn unsync [tracks]
+  (let [multiple (reduce least-common-multiple (map count tracks))]
+    (for [track tracks]
+         (let [number (/ multiple (count track))]
+           (beats multiple (duplicate number (combine track)))))))
+
+
+(defn fill [tracks]
+  (let [length (apply max (map count tracks))]
+    (for [track tracks]
+         (let [number (- length (count track))]
+           (concat track (replicate number (point ((last track) 1))))))))
+
+
 ;; TODO play
+
+
+(defn get-values [tracks _time]
+  ((apply juxt (map combine tracks)) _time))
+
+
+(defn start-play-loop [duration handler]
+  (let [start-time (tc/to-long (t/now))]
+    (async/go-loop []
+          (let [current-time (tc/to-long (t/now))
+                elapsed (- current-time start-time)
+                position (min 1 (/ elapsed duration))]
+            (handler position)
+            (when (< position 1)
+              ;; this should be handled in universe anyway?
+              (async/<! (async/timeout 92))
+              (recur))))))
+
+
+(defn play [handler tracks params]
+  (let [duration (bpm (:bpm params) (max (map count tracks)))
+        tracked-handler (fn [_time]
+                          (apply handler (get-values tracks _time)))]
+    (start-play-loop duration tracked-handler)))
