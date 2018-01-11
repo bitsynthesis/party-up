@@ -109,30 +109,34 @@
        (curve-fn (-> position (* length) (+ start)))))))
 
 
-;; TODO rename or alias chunk?
 (defn beats [number curve-fn]
-  (->> number
-       inc
-       range
+  (->> (range (inc number))
        (partition 2 1)
        (map (partial map (partial * (/ 1 number))))
        (map (fn [[start end]] (slice start end curve-fn)))))
 
 
 (defn track [& curve-fns]
+  "Convert a single function or a variety of nested and unnested functions to
+   a flat sequence of functions."
   (flatten curve-fns))
 
 
-;; TODO syncing fns
+(defn ^:private stretch-track [length _track]
+  (beats length (combine _track)))
 
 
 (defn stretch
+  "Stretch a curve function to a given length, defaulting to the length of the
+   longest track if multiple tracks provided."
   ([tracks] (stretch (apply max (map count tracks)) tracks))
-  ;; TODO need to flatten and handle single tracks
   ([length tracks]
-   (->> tracks
-        (map combine)
-        (map (partial beats length)))))
+   (if (fn? (first tracks))
+     (stretch-track length tracks)
+     (map (partial stretch-track length) tracks))))
+
+
+;; TODO sync fns
 
 
 (defn truncate [tracks]
@@ -140,12 +144,12 @@
     (map (partial take length) tracks)))
 
 
-(defn greatest-common-denominator
+(defn ^:private greatest-common-denominator
   [a b]
   (if (zero? b) a (recur b, (mod a b))))
 
 
-(defn least-common-multiple
+(defn ^:private least-common-multiple
   [a b]
   (/ (* a b) (greatest-common-denominator a b)))
 

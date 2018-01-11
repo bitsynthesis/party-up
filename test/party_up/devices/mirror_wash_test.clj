@@ -1,6 +1,6 @@
 (ns party-up.devices.mirror-wash-test
   (:require [clojure.test :refer [deftest is]]
-            [party-up.devices.mirror-wash :as mw]))
+            [party-up.devices.mirror-wash :refer [->MirrorWash] :as mw]))
 
 
 (deftest look-up-single-values
@@ -42,8 +42,8 @@
   [state1-atom state2-atom]
   (let [test-uni1 {:state state1-atom}
         test-uni2 {:state state2-atom}
-        test-row1 [(mw/panel test-uni1 0) (mw/panel test-uni2 0)]
-        test-row2 [(mw/panel test-uni1 192) (mw/panel test-uni2 192)]]
+        test-row1 [(->MirrorWash test-uni1 0) (->MirrorWash test-uni2 0)]
+        test-row2 [(->MirrorWash test-uni1 192) (->MirrorWash test-uni2 192)]]
     (mw/arrangement [test-row1 test-row2])))
 
 

@@ -2,7 +2,7 @@
   (:require [party-up.universe :as uni]))
 
 
-(defrecord Device [address universe])
+(defrecord Device [universe address])
 
 
 (defprotocol Brightness
