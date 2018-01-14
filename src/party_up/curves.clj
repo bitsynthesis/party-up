@@ -139,9 +139,12 @@
 ;; TODO sync fns
 
 
-(defn truncate [tracks]
-  (let [length (apply min (map count tracks))]
-    (map (partial take length) tracks)))
+(defn truncate
+  ([tracks] (truncate (apply min (map count tracks)) tracks))
+  ([length tracks]
+   (if (fn? (first tracks))
+     (take length tracks)
+     (map (partial take length) tracks))))
 
 
 (defn ^:private greatest-common-denominator

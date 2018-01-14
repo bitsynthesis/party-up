@@ -335,11 +335,60 @@
     (is (= 1.0 (track2 1.0)))))
 
 
-(deftest stretch-single-track
-  (let [stretched (crv/stretch 10 (crv/track identity))]
-    (is (= 10 (count stretched)))
-    (is (= 0.1 ((first stretched) 1.0)))
-    (is (= 1.0 ((last stretched) 1.0)))))
+(deftest truncate-single-track
+  (let [truncated (crv/truncate 2 (crv/track identity identity identity))]
+    (is (= 2 (count truncated)))))
+
+
+(deftest truncate-multi-track
+  (let [truncated (crv/truncate 1 [(crv/track identity identity)
+                                   (crv/track identity identity identity)])]
+    (is (= [1 1] (map count truncated)))))
+
+
+(deftest truncate-multi-track-to-min
+  (let [truncated (crv/truncate [(crv/track identity identity)
+                                 (crv/track identity identity identity)])]
+    (is (= [2 2] (map count truncated)))))
+
+
+;; TODO test single track no-op?
+(deftest unsync-multi-track
+  (let [unsynced (crv/unsync [(crv/track (crv/beats 4 identity))
+                              (crv/track (crv/beats 6 identity))])
+        [track1 track2] (map crv/combine unsynced)]
+    (is (= [12 12] (map count unsynced)))
+    (is (= 0.0 (track1 0.0)))
+    (is (= 0.75 (track1 0.25)))
+    (is (= 1.0 (Float. (format "%.5f" (track1 0.333333333)))))
+    (is (= 0.5 (Float. (format "%.5f" (track1 0.5)))))
+    (is (= 1.0 (Float. (format "%.5f" (track1 0.666666666)))))
+    (is (= 0.25 (Float. (format "%.5f" (track1 0.75)))))
+    (is (= 1.0 (Float. (format "%.5f" (track1 1.0)))))
+
+    (is (= 0.0 (track2 0.0)))
+    (is (= 0.5 (track2 0.25)))
+    (is (= 0.9 (track2 0.45)))
+    (is (= 0.0 (track2 0.5)))
+    (is (= 0.5 (track2 0.75)))
+    (is (= 1.0 (track2 1.0)))))
+
+
+(deftest fill-multi-track-to-max
+  (let [filled (crv/fill [(crv/track (comp inc identity))
+                          (crv/track identity identity)])
+        [track1 track2] (map crv/combine filled)]
+    (is (= [2 2] (map count filled)))
+    (is (= 1.0 (track1 0.0)))
+    (is (= 1.5 (track1 0.25)))
+    (is (= 2 (track1 0.5)))
+    (is (= 2 (track1 0.75)))
+    (is (= 2 (track1 1.0)))
+
+    (is (= 0.0 (track2 0.0)))
+    (is (= 0.5 (track2 0.25)))
+    (is (= 0.5 (track2 0.75)))
+    (is (= 1.0 (track2 1.0)))))
 
 
 ;; TODO sync fns
