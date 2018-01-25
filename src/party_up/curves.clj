@@ -32,13 +32,14 @@
 
 (defn view [curves]
   (let [curves (if (coll? curves) curves [curves])]
-    (let [plot (charts/function-plot
+    (let [chart (charts/function-plot
                 (first curves) 0.0 1.0 :x-label "time" :y-label "value")]
       (-> (if (pos? (count (rest curves)))
-            (reduce #(charts/add-function %1 %2 0.0 1.0) plot (rest curves))
-            plot)
+            (reduce #(charts/add-function %1 %2 0.0 1.0) chart (rest curves))
+            chart)
           (charts/set-theme :dark)
-          incanter/view))))
+          incanter/view)
+      chart)))
 
 
 (defn flip [curve-fns]
@@ -176,6 +177,12 @@
 
 (defn get-values [tracks _time]
   ((apply juxt (map combine tracks)) _time))
+
+
+(defn seek [tracks _time]
+  (if (fn? (first tracks))
+    ((combine tracks) _time)
+    ((apply juxt (map combine tracks)) _time)))
 
 
 (defn start-play-loop [duration handler]

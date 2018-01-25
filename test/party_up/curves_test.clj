@@ -391,7 +391,29 @@
     (is (= 1.0 (track2 1.0)))))
 
 
-;; TODO sync fns
+;; TODO seek single track
+
+
+(deftest seek-single-track
+  (let [track1 (crv/track identity identity)]
+    (is (= 0.0 (crv/seek track1 0.0)))
+    (is (= 0.5 (crv/seek track1 0.25)))
+    (is (= 0.0 (crv/seek track1 0.5)))
+    (is (= 0.5 (crv/seek track1 0.75)))
+    (is (= 1.0 (crv/seek track1 1.0)))))
+
+
+;; TODO seek multi track
+
+
+(deftest seek-multi-track
+  (let [tracks [(crv/track identity)
+                (crv/track identity identity)]]
+    (is (= [0.0 0.0] (crv/seek tracks 0.0)))
+    (is (= [0.25 0.5] (crv/seek tracks 0.25)))
+    (is (= [0.5 0.0] (crv/seek tracks 0.5)))
+    (is (= [0.75 0.5] (crv/seek tracks 0.75)))
+    (is (= [1.0 1.0] (crv/seek tracks 1.0)))))
 
 
 
