@@ -374,6 +374,9 @@
     (is (= 1.0 (track2 1.0)))))
 
 
+;; TODO fill-single-track
+
+
 (deftest fill-multi-track-to-max
   (let [filled (crv/fill [(crv/track (comp inc identity))
                           (crv/track identity identity)])
@@ -416,4 +419,17 @@
     (is (= [1.0 1.0] (crv/seek tracks 1.0)))))
 
 
+;; TODO single track play
 
+
+;; (play dummy-fn track1)
+;; (play dummy-fn track1 {:bpm 120)
+;; (play dummy-fn track1 {:bpm 120 :loop true)
+
+
+;; TODO multi track play
+
+
+;; (play dummy-fn [track1 track2])
+;; (play dummy-fn [track1 track2] {:bpm 120})
+;; (play dummy-fn [track1 track2] {:bpm 120 :loop true})

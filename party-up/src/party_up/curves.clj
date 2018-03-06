@@ -1,11 +1,7 @@
 (ns party-up.curves
   (:require [clj-time.core :as t]
             [clj-time.coerce :as tc]
-            [clojure.core.async :as async]
-            [incanter.core :as incanter]
-            [incanter.stats :as stats]
-            [incanter.charts :as charts]
-            [incanter.io :as io]))
+            [clojure.core.async :as async]))
 
 
 (defn position-on-segment [position [start-value end-value]]
@@ -28,18 +24,6 @@
   (fn [position]
     ;; TODO is rounding with int the best move?
     (int (de-casteljau-algorithm position points))))
-
-
-(defn view [curves]
-  (let [curves (if (coll? curves) curves [curves])]
-    (let [chart (charts/function-plot
-                (first curves) 0.0 1.0 :x-label "time" :y-label "value")]
-      (-> (if (pos? (count (rest curves)))
-            (reduce #(charts/add-function %1 %2 0.0 1.0) chart (rest curves))
-            chart)
-          (charts/set-theme :dark)
-          incanter/view)
-      chart)))
 
 
 (defn flip [curve-fns]
