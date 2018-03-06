@@ -1,4 +1,4 @@
-(ns party-up.example
+(ns example.random
   (:require [clj-time.core :as t]
             [clj-time.coerce :as tc]
             [clojure.core.async :as async]
@@ -7,6 +7,9 @@
             [party-up.curves :as curves]
             [party-up.devices :refer :all]
             [party-up.devices.min-wash :refer [->MinWash]]))
+
+
+;; some random sketch stuff
 
 
 ;; (def my-universe (uni/universe "/dev/ttyUSB0"))
