@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "party-up"
+version = "0.1.0"
+description = ""
+authors = ["bbakersmith <b@baker-smith.net>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydmxcontrol = "^2.0.0"
+pydmx = "^0.1.0"
+pydmx-drivers-ftdi = "^0.1.0"
+pylibftdi = "^0.21.0"
+flask = "2.2.4"
+libusb = "^1.0.26rc2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
