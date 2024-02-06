@@ -1,74 +1,85 @@
 #!/usr/bin/env python3
+import os
 import time
 
-from party_up.universe import DmxKingUltraDmxMicro, Fixture, Universe
-
-uni = Universe(output=DmxKingUltraDmxMicro())
-
-min_spot = Fixture(
-    name="MinSpot",
-    universe=uni,
-    address=1,
-    channels=[
-        "pan",
-        "pan-fine",
-        "tilt",
-        "tilt-fine",
-        "vector-speed-pan-tilt",
-        "dimmer-strobe",
-        "red",
-        "green",
-        "blue",
-        "color-macros",
-        "vector-speed-color",
-        "movement-macros",
-        "gobo",
-    ]
+from party_up.tui import start_tui
+from party_up.universe import (
+    DmxKingUltraDmxMicro,
+    DummyOutput,
+    Fixture,
+    MinSpot,
+    MinWash,
+    Universe,
 )
 
-min_wash = Fixture(
-    name="MinWash",
-    universe=uni,
-    address=15,
-    channels=[
-        "pan",
-        "pan-fine",
-        "tilt",
-        "tilt-fine",
-        "vector-speed-pan-tilt",
-        "dimmer-strobe",
-        "red",
-        "green",
-        "blue",
-        "color-macros",
-        "vector-speed-color",
-        "movement-macros",
-    ]
-)
+# uni = Universe(output=DmxKingUltraDmxMicro())
+uni = Universe(output=DummyOutput())
 
+min_spot = MinSpot(name="MinSpot", universe=uni, address=1)
+min_wash = MinWash(name="MinWash", universe=uni, address=15)
 
+min_spot.pan = 100
+min_spot.tilt = 60
+min_spot.dimmer = 0xFF
+min_spot.red = 0xFF
 
-min_spot.set("pan", 0x50)
-min_spot.set("tilt", 0x80)
-min_spot.set("dimmer-strobe", 0xFF)
-min_spot.set("blue", 0xFF)
-min_spot.set("red", 0x80)
+min_wash.pan = 195
+min_wash.tilt = 60
+min_wash.blue = 0xFF
+min_wash.dimmer = 0xFF
 
-min_wash.set("pan", 0x50)
-min_wash.set("tilt", 0x80)
+# time.sleep(5)
+
+# import pdb; pdb.set_trace()
 
 try:
-    while(True):
-        time.sleep(3)
-        min_spot.set("blue", 0x00)
-        min_spot.set("red", 0xFF)
+    start_tui(uni, [min_spot, min_wash])
 
-        time.sleep(3)
-        min_spot.set("blue", 0xFF)
-        min_spot.set("red", 0x00)
+    # while True:
+    #     time.sleep(3)
+    #
+    #     min_spot.movement_speed(0xFF)
+    #     min_wash.movement_speed(0xFF)
+    #     min_spot.color_speed(0x80)
+    #     min_wash.color_speed(0x80)
+    #     min_spot.gobo(0)
+    #
+    #     min_spot.pan(50)
+    #     min_wash.pan(150)
+    #
+    #     min_spot.green(0xFF)
+    #     min_wash.red(0)
+    #
+    #     time.sleep(9)
+    #
+    #     min_spot.strobe(0xFF)
+    #     min_wash.strobe(0xFF)
+    #
+    #     time.sleep(3)
+    #
+    #     min_spot.dimmer(0xFF)
+    #     min_wash.dimmer(0xFF)
+    #
+    #     min_spot.green(0)
+    #     min_wash.red(0xFF)
+    #
+    #     min_spot.pan(100)
+    #     min_wash.pan(195)
+    #
+    #     time.sleep(9)
+    #
+    #     min_spot.gobo(3)
+    #
+    #     time.sleep(3)
+    #
+    #     # min_wash.movement_speed(0)
+    #     # min_spot.movement_speed(0)
+    #     # min_spot.pan(255)
+    #     # min_wash.pan(0)
 
-except:
+finally:
     print("Closing time")
     uni.state = [0] * 512
     time.sleep(0.03)
     uni.close()
+    os._exit(0)
