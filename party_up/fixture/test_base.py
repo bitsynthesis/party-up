@@ -12,6 +12,7 @@ def test_capability_bad_configuration():
     with pytest.raises(ValueError):
         Capability("foo", value_to_channels=lambda _: 1)
 
+
 def test_capability_default():
     default_capability = Capability("foo")
 

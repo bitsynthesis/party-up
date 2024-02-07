@@ -4,7 +4,7 @@ import time
 
 class Output(abc.ABC):
     def close(self):
-        print("Warning: close not implemented for output")
+        raise NotImplementedError("OutputDevice must implement close")
 
     def write(self, state: list[int]):
         raise NotImplementedError("OutputDevice must implement write")
@@ -14,6 +14,7 @@ class DebugOutput(Output):
     """
     Writes state to internal log.
     """
+
     def __init__(self, sleep_seconds: int = 0):
         self.sleep_seconds = sleep_seconds
         self.log = []
@@ -22,3 +23,7 @@ class DebugOutput(Output):
         # TODO roll log to constrain memory usage
         self.log.append(state)
         time.sleep(self.sleep_seconds)
+
+    def close(self):
+        # indicate close message in the log
+        self.write([-1])
