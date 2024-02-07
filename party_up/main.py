@@ -6,10 +6,11 @@ from party_up.tui import start_tui
 from party_up.universe import Universe
 from party_up.fixture.base import Fixture
 from party_up.fixture.chauvet import MinSpot, MinWash
-from party_up.output.dmx import DmxKingUltraDmxMicro, DummyOutput
+from party_up.output.base import DebugOutput
+from party_up.output.dmx import DmxKingUltraDmxMicro
 
 # uni = Universe(output=DmxKingUltraDmxMicro())
-uni = Universe(output=DummyOutput())
+uni = Universe(output=DebugOutput(sleep_seconds=10))
 
 min_spot = MinSpot(name="MinSpot", universe=uni, address=1)
 min_wash = MinWash(name="MinWash", universe=uni, address=15)

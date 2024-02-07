@@ -1,3 +1,4 @@
+import abc
 import dataclasses
 import typing
 
@@ -42,7 +43,7 @@ class Capability:
             self.channels_to_value = lambda channels: channels[self.name]
 
 
-class Fixture:
+class Fixture(abc.ABC):
     def __init__(
         self, name: str, universe: Universe, address: int, channels: list[str]
     ):

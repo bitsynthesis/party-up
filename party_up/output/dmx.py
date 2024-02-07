@@ -6,21 +6,10 @@ import typing
 
 import serial
 
-
-class DmxOutput:
-    def close(self):
-        print("Warning: close not implemented for output")
-
-    def write(self, state: list[int]):
-        raise NotImplementedError("OutputDevice must implement write")
+from party_up.output.base import Output
 
 
-class DummyOutput(DmxOutput):
-    def write(self, state: list[int]):
-        time.sleep(10)
-
-
-class DmxKingUltraDmxMicro(DmxOutput):
+class DmxKingUltraDmxMicro(Output):
     def __init__(self, port: str = "/dev/ttyUSB0"):
         self.port = serial.Serial(
             port=port,
