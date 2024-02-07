@@ -2,7 +2,8 @@ from functools import partial
 
 import urwid
 
-from party_up.universe import Fixture, Universe
+from party_up.universe import Universe
+from party_up.fixture.base import Fixture
 
 
 palette = [
@@ -42,35 +43,44 @@ class SimpleButton(urwid.Text):
 
 class ImmediateSelectPile(urwid.Pile):
     def keypress(self, size, key):
-        super().keypress(size, key)
+        result = super().keypress(size, key)
 
         if key in {"up", "down"}:
             self.keypress(size, "enter")
+
+        # # TODO does this really belong here?
+        # if key == "right":
+        #     self._emit("click")
+
+        return result
 
 
 class Layout:
     def __init__(self):
         self.header = urwid.Text(("banner", "Party Up!"), align="center")
+        self.footer = urwid.Text(("banner", ""), align="left")
         self.left_column = ImmediateSelectPile([urwid.Button("Nothing...")])
         self.right_column = ImmediateSelectPile([urwid.Button("oh hai")])
 
         self.columns = urwid.Columns(
             [
-                urwid.LineBox(self.left_column),
-                urwid.LineBox(self.right_column),
+                ("weight", 1, urwid.LineBox(self.left_column)),
+                ("weight", 3, urwid.LineBox(self.right_column)),
             ]
         )
 
-        self.body = urwid.ListBox(urwid.SimpleListWalker([self.header, self.columns]))
+        self.body = urwid.Frame(
+            urwid.ListBox(urwid.SimpleListWalker([self.columns])),
+            self.header,
+            self.footer,
+        )
 
 
 def format_fixture_list_item(fixture: Fixture) -> str:
     return fixture.name
 
 
-def fixture_list_select(widget: urwid.Button, data: tuple[Fixture, Layout]):
-    fixture, layout = data
-
+def fixture_channels_view(fixture: Fixture, layout: Layout):
     layout.columns.contents[1][0].set_title(f"{fixture.name} Channels")
 
     contents = []
@@ -91,10 +101,21 @@ def fixture_list_select(widget: urwid.Button, data: tuple[Fixture, Layout]):
     layout.right_column.contents = contents
 
 
-def create_capabilities_list(data: tuple[Fixture, Layout]):
-    fixture, layout = data
+def fixture_capabilities_view(fixture: Fixture, layout: Layout):
+    layout.columns.contents[1][0].set_title(f"{fixture.name} Channels")
 
-    # layout.columns.contents[1][0].contents
+    contents = []
+    for i, capability in enumerate(fixture.capabilities):
+        options = layout.right_column.options()
+        contents.append((urwid.Text(capability.name), options))
+
+    layout.right_column.contents = contents
+
+
+def fixtures_list_item_handler(widget: urwid.Button, data: tuple[Fixture, Layout]):
+    fixture, layout = data
+    # fixture_channels_view(fixture, layout)
+    fixture_capabilities_view(fixture, layout)
 
 
 def create_fixtures_list(fixtures: list[Fixture], layout: Layout):
@@ -103,7 +124,13 @@ def create_fixtures_list(fixtures: list[Fixture], layout: Layout):
     contents = []
     for fixture in fixtures:
         button = SimpleButton(format_fixture_list_item(fixture))
-        urwid.connect_signal(button, "click", fixture_list_select, (fixture, layout))
+        urwid.connect_signal(
+            button,
+            "click",
+            fixtures_list_item_handler,
+            (fixture, layout)
+        )
+
         final = urwid.AttrMap(
             button,
             "fixture_list_item",
@@ -121,7 +148,7 @@ def show_or_exit(universe: Universe, layout: Layout, key):
     if key in ("q", "Q"):
         raise urwid.ExitMainLoop()
     else:
-        layout.header.set_text(("banner", repr(key)))
+        layout.footer.set_text(("banner", repr(key)))
 
 
 def start_tui(universe: Universe, fixtures: list[Fixture]):
@@ -162,5 +189,7 @@ def start_tui(universe: Universe, fixtures: list[Fixture]):
         loop.run()
 
     except BaseException as err:
-        with open("errors.txt", "a") as f:
-            f.write(err.message + "\n")
+        print(f"error: {err}")
+        raise err
+        # with open("errors.txt", "a") as f:
+        #     f.write(f"{err}\n")
