@@ -125,10 +125,7 @@ def create_fixtures_list(fixtures: list[Fixture], layout: Layout):
     for fixture in fixtures:
         button = SimpleButton(format_fixture_list_item(fixture))
         urwid.connect_signal(
-            button,
-            "click",
-            fixtures_list_item_handler,
-            (fixture, layout)
+            button, "click", fixtures_list_item_handler, (fixture, layout)
         )
 
         final = urwid.AttrMap(
@@ -146,7 +143,6 @@ def create_fixtures_list(fixtures: list[Fixture], layout: Layout):
 
 def print_debug(layout: Layout, msg: str):
     layout.footer.set_text(("banner", msg))
-
 
 
 def show_or_exit(universe: Universe, layout: Layout, key):
