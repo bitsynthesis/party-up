@@ -1,7 +1,7 @@
 import dataclasses
 import typing
 
-from party_up.universe2 import Universe
+from party_up.universe import Universe
 
 
 @dataclasses.dataclass

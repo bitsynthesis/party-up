@@ -144,11 +144,16 @@ def create_fixtures_list(fixtures: list[Fixture], layout: Layout):
     layout.left_column.contents[0][0].keypress(1, "enter")
 
 
+def print_debug(layout: Layout, msg: str):
+    layout.footer.set_text(("banner", msg))
+
+
+
 def show_or_exit(universe: Universe, layout: Layout, key):
     if key in ("q", "Q"):
         raise urwid.ExitMainLoop()
     else:
-        layout.footer.set_text(("banner", repr(key)))
+        print_debug(layout, f"unhandled: {repr(key)}")
 
 
 def start_tui(universe: Universe, fixtures: list[Fixture]):
