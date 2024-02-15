@@ -15,13 +15,10 @@ class Universe:
         self.writer = threading.Thread(target=self.start)
         self.writer.start()
 
+    # TODO rename and replace with something that actually starts the writer thread
     def start(self):
-        print("Starting")
-
         while self.write_enabled:
             self.output.write(self.state)
-
-        print("Stopping")
 
     def stop(self):
         self.write_enabled = False
