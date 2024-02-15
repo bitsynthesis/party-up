@@ -66,6 +66,11 @@ class Fixture(abc.ABC):
         universe_address = self.address + self.channels.index(channel)
         self.universe.state[universe_address] = value
 
+    def get_all(self) -> dict[str, int]:
+        return {
+            channel: self.get(channel) for channel in self.channels
+        }
+
     @property
     def capabilities(self) -> list[Capability]:
         raise NotImplementedError("Fixture must implement capabilities")
@@ -85,6 +90,9 @@ class Fixture(abc.ABC):
             )
 
         return matches[0]
+
+    def get_capability_value(self, name: str) -> int:
+        return self.get_capability(name).channels_to_value(self.get_all())
 
     def set_capability_value(self, name: str, value: typing.Any):
         capability = self.get_capability(name)

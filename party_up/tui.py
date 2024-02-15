@@ -102,12 +102,18 @@ def fixture_channels_view(fixture: Fixture, layout: Layout):
 
 
 def fixture_capabilities_view(fixture: Fixture, layout: Layout):
-    layout.columns.contents[1][0].set_title(f"{fixture.name} Channels")
+    layout.columns.contents[1][0].set_title(f"{fixture.name} Capabilities")
 
     contents = []
     for i, capability in enumerate(fixture.capabilities):
         options = layout.right_column.options()
-        contents.append((urwid.Text(capability.name), options))
+        item = urwid.Columns(
+            [
+                urwid.Text(capability.name),
+                urwid.Text(str(fixture.get_capability_value(capability.name))),
+            ]
+        )
+        contents.append((item, options))
 
     layout.right_column.contents = contents
 
