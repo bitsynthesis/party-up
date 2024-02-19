@@ -67,9 +67,7 @@ class Fixture(abc.ABC):
         self.universe.state[universe_address] = value
 
     def get_all(self) -> dict[str, int]:
-        return {
-            channel: self.get(channel) for channel in self.channels
-        }
+        return {channel: self.get(channel) for channel in self.channels}
 
     @property
     def capabilities(self) -> list[Capability]:

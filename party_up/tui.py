@@ -60,7 +60,7 @@ class Layout:
         self.header = urwid.Text(("banner", "Party Up!"), align="center")
         self.footer = urwid.Text(("banner", ""), align="left")
         self.left_column = ImmediateSelectPile([urwid.Button("Nothing...")])
-        self.right_column = ImmediateSelectPile([urwid.Button("oh hai")])
+        self.right_column = urwid.Pile([urwid.Button("oh hai")])
 
         self.columns = urwid.Columns(
             [
@@ -101,18 +101,47 @@ def fixture_channels_view(fixture: Fixture, layout: Layout):
     layout.right_column.contents = contents
 
 
+class CapabilityEdit(urwid.Edit):
+    def __init__(self, fixture: Fixture, capability_name: str, layout: Layout):
+        self.fixture = fixture
+        self.capability_name = capability_name
+        self.xlayout = layout
+
+        current_value = str(fixture.get_capability_value(self.capability_name))
+        super().__init__("", current_value)
+
+    def keypress(self, size, key):
+        if key != "enter":
+            return super().keypress(size, key)
+
+        print_debug(
+            self.xlayout,
+            f"key: {key}\nset capability {self.capability_name}",
+        )
+
+        # TODO input validation
+        self.fixture.set_capability_value(
+            self.capability_name,
+            int(self.get_edit_text()),
+        )
+
+
 def fixture_capabilities_view(fixture: Fixture, layout: Layout):
     layout.columns.contents[1][0].set_title(f"{fixture.name} Capabilities")
 
     contents = []
     for i, capability in enumerate(fixture.capabilities):
         options = layout.right_column.options()
+
+        value_edit = CapabilityEdit(fixture, capability.name, layout)
+
         item = urwid.Columns(
             [
                 urwid.Text(capability.name),
-                urwid.Text(str(fixture.get_capability_value(capability.name))),
+                value_edit,
             ]
         )
+
         contents.append((item, options))
 
     layout.right_column.contents = contents
@@ -200,3 +229,10 @@ def start_tui(universe: Universe, fixtures: list[Fixture]):
         raise err
         # with open("errors.txt", "a") as f:
         #     f.write(f"{err}\n")
+
+
+# TODO
+# - use change signal to highlight all changed values
+# - catch enter keypress at the column level to
+#   - commit all changed values
+#   - reset highlighting
