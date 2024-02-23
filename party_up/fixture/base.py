@@ -63,6 +63,9 @@ class Fixture(abc.ABC):
         return self.universe.state[self.address + self.channels.index(channel)]
 
     def set(self, channel: str, value: int):
+        if value < 0 or value > 255:
+            raise ValueError(f"Invalid value for '{channel}': {value}")
+
         universe_address = self.address + self.channels.index(channel)
         self.universe.state[universe_address] = value
 
