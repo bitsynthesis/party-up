@@ -54,9 +54,9 @@ class _MinBase(Fixture):
             min_value = 134
             total_values = min_value - max_value
 
-            value = min_value - int((255 / value) * total_values)
+            adjusted_value = min_value - round((value / 255) * total_values)
 
-        return {"dimmer-strobe": value}
+        return {"dimmer-strobe": adjusted_value}
 
     @staticmethod
     def parse_strobe(value: int):
@@ -69,7 +69,7 @@ class _MinBase(Fixture):
             min_value = 135
             total_values = max_value - min_value
 
-            adjusted_value = int((255 / value) * total_values)
+            adjusted_value = min_value + round((value / 255) * total_values)
 
         return {"dimmer-strobe": adjusted_value}
 
