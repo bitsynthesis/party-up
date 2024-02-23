@@ -1,6 +1,6 @@
 import pytest
 
-from party_up.output.base import *
+from party_up.output.base import DebugOutput
 
 
 def test_debug_output_write():

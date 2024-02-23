@@ -2,12 +2,12 @@
 import os
 import time
 
-from party_up.tui import start_tui
+# from party_up.tui import start_tui
 from party_up.universe import Universe
-from party_up.fixture.base import Fixture
 from party_up.fixture.chauvet import MinSpot, MinWash
 from party_up.output.base import DebugOutput
-from party_up.output.dmx import DmxKingUltraDmxMicro
+
+# from party_up.output.dmx import DmxKingUltraDmxMicro
 
 # uni = Universe(output=DmxKingUltraDmxMicro())
 uni = Universe(output=DebugOutput(sleep_seconds=10))
@@ -28,7 +28,8 @@ min_wash.dimmer = 0xFF
 # import pdb; pdb.set_trace()
 
 try:
-    start_tui(uni, [min_spot, min_wash])
+    # start_tui(uni, [min_spot, min_wash])
+    print("Ooops")
 
 finally:
     print("Closing time")

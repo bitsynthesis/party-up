@@ -19,7 +19,7 @@ class DebugOutput(Output):
     def __init__(self, sleep_seconds: int = 0, log_limit: int = 100):
         self.sleep_seconds = sleep_seconds
         self.log_limit = log_limit
-        self.log = collections.deque([])
+        self.log: collections.deque = collections.deque([])
 
     def write(self, state: list[int]):
         # roll log to constrain memory usage

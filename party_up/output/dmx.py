@@ -1,8 +1,4 @@
-import dataclasses
-import functools
-import threading
 import time
-import typing
 
 import serial
 

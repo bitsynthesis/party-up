@@ -1,17 +1,20 @@
-from party_up.fixture.chauvet import _MinBase
+from party_up.fixture.chauvet import (
+    min_adjust_dimmer_value,
+    min_adjust_strobe_value,
+)
 
 
-def test_parse_dimmer():
-    assert _MinBase.parse_dimmer(0) == {"dimmer-strobe": 0}
-    assert _MinBase.parse_dimmer(255) == {"dimmer-strobe": 255}
-    assert _MinBase.parse_dimmer(254) == {"dimmer-strobe": 8}
-    assert _MinBase.parse_dimmer(1) == {"dimmer-strobe": 134}
-    assert _MinBase.parse_dimmer(128) == {"dimmer-strobe": 71}
+def test_min_adjust_dimmer_value():
+    assert min_adjust_dimmer_value(0) == 0
+    assert min_adjust_dimmer_value(255) == 255
+    assert min_adjust_dimmer_value(254) == 8
+    assert min_adjust_dimmer_value(1) == 134
+    assert min_adjust_dimmer_value(128) == 71
 
 
 def test_parse_strobe():
-    assert _MinBase.parse_strobe(0) == {"dimmer-strobe": 135}
-    assert _MinBase.parse_strobe(255) == {"dimmer-strobe": 239}
-    assert _MinBase.parse_strobe(254) == {"dimmer-strobe": 239}
-    assert _MinBase.parse_strobe(1) == {"dimmer-strobe": 135}
-    assert _MinBase.parse_strobe(128) == {"dimmer-strobe": 187}
+    assert min_adjust_strobe_value(0) == 135
+    assert min_adjust_strobe_value(255) == 239
+    assert min_adjust_strobe_value(254) == 239
+    assert min_adjust_strobe_value(1) == 135
+    assert min_adjust_strobe_value(128) == 187
